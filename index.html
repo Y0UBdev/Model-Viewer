@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MODEL VIEWER</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --panel: #111111;
+      --border: #1e1e1e;
+      --accent: #39ff14;
+      --accent-dim: rgba(57, 255, 20, 0.15);
+      --text: #c8c8c8;
+      --text-dim: #555;
+      --text-bright: #f0f0f0;
+      --sidebar-w: 280px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'IBM Plex Mono', monospace;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── SIDEBAR ── */
+    #sidebar {
+      width: var(--sidebar-w);
+      min-width: var(--sidebar-w);
+      background: var(--panel);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    #sidebar-header {
+      padding: 18px 16px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    #sidebar-header .label {
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    #sidebar-header h1 {
+      font-family: 'Space Mono', monospace;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-bright);
+      letter-spacing: 0.05em;
+    }
+
+    #sidebar-header h1 span {
+      color: var(--accent);
+    }
+
+    #search-wrap {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    #search {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      padding: 7px 10px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    #search::placeholder { color: var(--text-dim); }
+    #search:focus { border-color: var(--accent); }
+
+    #model-count {
+      padding: 6px 12px;
+      font-size: 10px;
+      color: var(--text-dim);
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--border);
+    }
+
+    #model-count span { color: var(--accent); }
+
+    #model-list {
+      flex: 1;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+
+    #model-list::-webkit-scrollbar { width: 4px; }
+    #model-list::-webkit-scrollbar-track { background: transparent; }
+    #model-list::-webkit-scrollbar-thumb { background: var(--border); }
+
+    .model-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      transition: background 0.15s;
+      position: relative;
+    }
+
+    .model-item:hover { background: rgba(255,255,255,0.03); }
+
+    .model-item.active {
+      background: var(--accent-dim);
+      border-left: 2px solid var(--accent);
+      padding-left: 10px;
+    }
+
+    .model-item.active .model-name { color: var(--accent); }
+
+    .model-icon {
+      width: 32px;
+      height: 32px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 14px;
+      transition: border-color 0.2s;
+    }
+
+    .model-item.active .model-icon { border-color: var(--accent); }
+
+    .model-info { flex: 1; overflow: hidden; }
+
+    .model-name {
+      font-size: 11px;
+      color: var(--text-bright);
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 2px;
+    }
+
+    .model-file {
+      font-size: 9px;
+      color: var(--text-dim);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      letter-spacing: 0.03em;
+    }
+
+    /* ── BOTTOM PANEL INFO ── */
+    #info-panel {
+      border-top: 1px solid var(--border);
+      padding: 12px;
+      font-size: 10px;
+      color: var(--text-dim);
+      min-height: 100px;
+      background: var(--bg);
+    }
+
+    #info-panel .info-title {
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 10px;
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 3px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+
+    .info-row .key { color: var(--text-dim); }
+    .info-row .val { color: var(--text-bright); font-weight: 500; }
+
+    #no-model-msg {
+      color: var(--text-dim);
+      font-size: 10px;
+      font-style: italic;
+    }
+
+    /* ── VIEWPORT ── */
+    #viewport {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    canvas {
+      display: block;
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    /* ── TOOLBAR ── */
+    #toolbar {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      z-index: 10;
+    }
+
+    .tool-btn {
+      width: 36px;
+      height: 36px;
+      background: rgba(10,10,10,0.85);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+      letter-spacing: 0;
+      backdrop-filter: blur(4px);
+    }
+
+    .tool-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .tool-btn.active { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+
+    /* ── STATUS BAR ── */
+    #status {
+      position: absolute;
+      bottom: 12px;
+      left: 14px;
+      font-size: 9px;
+      color: var(--text-dim);
+      letter-spacing: 0.08em;
+      pointer-events: none;
+    }
+
+    #status .dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--text-dim);
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+
+    #status.loading .dot { background: #f0a500; animation: blink 0.8s infinite; }
+    #status.ready .dot { background: var(--accent); }
+
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+    /* ── EMPTY STATE ── */
+    #empty-state {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      gap: 12px;
+    }
+
+    #empty-state .big-icon { font-size: 48px; opacity: 0.15; }
+
+    #empty-state p {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      color: var(--text-dim);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    /* ── LOADING OVERLAY ── */
+    #loading-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(10,10,10,0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+      backdrop-filter: blur(2px);
+    }
+
+    #loading-overlay.visible { opacity: 1; pointer-events: all; }
+
+    .spinner {
+      width: 32px;
+      height: 32px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* no models in folder */
+    #empty-folder {
+      padding: 20px 12px;
+      font-size: 10px;
+      color: var(--text-dim);
+      text-align: center;
+      line-height: 1.8;
+    }
+  </style>
+</head>
+<body>
+
+<div id="sidebar">
+  <div id="sidebar-header">
+    <div class="label">Studio Tool</div>
+    <h1>MODEL<span>.</span>VIEWER</h1>
+  </div>
+
+  <div id="search-wrap">
+    <input id="search" type="text" placeholder="Filtrer les modèles..." autocomplete="off" />
+  </div>
+
+  <div id="model-count">
+    <span id="count-num">0</span> modèle(s) trouvé(s)
+  </div>
+
+  <div id="model-list"></div>
+
+  <div id="info-panel">
+    <div class="info-title">Infos du modèle</div>
+    <div id="no-model-msg">Aucun modèle sélectionné</div>
+    <div id="model-stats" style="display:none"></div>
+  </div>
+</div>
+
+<div id="viewport">
+  <div id="empty-state">
+    <div class="big-icon">⬡</div>
+    <p>Sélectionner un modèle</p>
+  </div>
+
+  <div id="loading-overlay">
+    <div class="spinner"></div>
+  </div>
+
+  <div id="toolbar">
+    <button class="tool-btn" id="btn-reset" title="Reset caméra">⌖</button>
+    <button class="tool-btn" id="btn-wire" title="Wireframe">◫</button>
+    <button class="tool-btn" id="btn-grid" title="Grille" >⊞</button>
+    <button class="tool-btn" id="btn-bg" title="Fond sombre/clair">◑</button>
+  </div>
+
+  <div id="status">
+    <span class="dot"></span>
+    <span id="status-text">EN ATTENTE</span>
+  </div>
+</div>
+
+<script type="module" src="/src/main.ts"></script>
+</body>
+</html>
