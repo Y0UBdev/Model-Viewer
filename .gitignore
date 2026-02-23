@@ -1,0 +1,25 @@
+# Dépendances
+node_modules/
+
+# Build
+dist/
+
+# Env
+.env
+.env.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# ── Modèles 3D (fichiers de test locaux) ──────────────────────────────────────
+public/models/*.glb
+public/models/*.gltf
+public/models/*.bin
+public/models/*.png
+public/models/*.jpg
+public/models/*.jpeg
+public/models/*.webp
+
+# Garder le dossier /models dans git (avec un .gitkeep)
+!public/models/.gitkeep
