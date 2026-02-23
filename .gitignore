@@ -20,6 +20,3 @@ public/models/*.png
 public/models/*.jpg
 public/models/*.jpeg
 public/models/*.webp
-
-# Garder le dossier /models dans git (avec un .gitkeep)
-!public/models/.gitkeep
