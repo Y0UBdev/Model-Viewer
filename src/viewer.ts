@@ -97,10 +97,6 @@ export class Viewer {
             this.current = undefined;
         }
 
-        // Extraire le répertoire de base de l'URL pour que GLTFLoader puisse charger les ressources relatives
-        const basePath = url.substring(0, url.lastIndexOf('/') + 1);
-        this.loader.setPath(basePath);
-
         this.loader.load(
             url,
             (gltf: GLTF) => {
