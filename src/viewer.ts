@@ -87,14 +87,14 @@ export class Viewer {
         this.scene.add(rim);
     }
 
-    loadModel(path: string, onLoad?: (info: ModelInfo) => void, onError?: (err: unknown) => void) {
+    loadModel(url: string, onLoad?: (info: ModelInfo) => void, onError?: (err: unknown) => void) {
         if (this.current) {
             this.scene.remove(this.current);
             this.current = undefined;
         }
 
         this.loader.load(
-            `models/${path}`,
+            url,
             (gltf: GLTF) => {
                 const model = gltf.scene;
 

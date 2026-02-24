@@ -1,11 +1,12 @@
 import { Viewer, type ModelInfo } from './viewer';
 
 
-const modelModules = import.meta.glob('/assets/*.{glb,gltf}', { eager: false, query: '?url' });
+const modelModules = import.meta.glob<{ default: string }>('./assets/models/*.{glb,gltf}', { eager: true, query: '?url' });
 
 interface ModelEntry {
     name: string;
     file: string;
+    url: string;
 }
 
 function fileToName(file: string): string {
@@ -15,9 +16,10 @@ function fileToName(file: string): string {
         .replace(/\b\w/g, c => c.toUpperCase());
 }
 
-const MODELS: ModelEntry[] = Object.keys(modelModules).map(path => {
-    const file = path.split('/').at(-1) ?? path;
-    return { name: fileToName(file), file };
+const MODELS: ModelEntry[] = Object.entries(modelModules).map(([, module]) => {
+    const url = module.default;
+    const file = url.split('/').at(-1) ?? url;
+    return { name: fileToName(file), file, url };
 });
 
 // ── DOM refs ──────────────────────────────────────────────────────────────────
@@ -76,7 +78,7 @@ function loadModel(entry: ModelEntry, itemEl: HTMLElement) {
     setStatus('loading', `CHARGEMENT ${entry.file.toUpperCase()}`);
 
     viewer.loadModel(
-        entry.file,
+        entry.url,
         (info) => {
             loadingOverlay.classList.remove('visible');
             setStatus('ready', `${entry.name.toUpperCase()} — PRÊT`);
