@@ -12,4 +12,5 @@ dist/
 .DS_Store
 Thumbs.db
 
-src/assets/models_test
+# Dossiers personnels (à ne pas commiter)
+src/assets/my_model/
