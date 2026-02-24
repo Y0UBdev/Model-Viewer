@@ -15,7 +15,7 @@ export class Viewer {
     private readonly camera: THREE.PerspectiveCamera;
     private renderer: THREE.WebGLRenderer;
     private controls: OrbitControls;
-    private loader = new GLTFLoader();
+    private loader: GLTFLoader;
 
     private current?: THREE.Object3D;
     private readonly grid: THREE.GridHelper;
@@ -48,6 +48,10 @@ export class Viewer {
         this.controls.dampingFactor = 0.07;
         this.controls.minDistance = 0.5;
         this.controls.maxDistance = 200;
+
+        // GLTFLoader avec LoadingManager pour gérer les chemins de base
+        const manager = new THREE.LoadingManager();
+        this.loader = new GLTFLoader(manager);
 
         // Lights
         this.setupLights();
@@ -92,6 +96,10 @@ export class Viewer {
             this.scene.remove(this.current);
             this.current = undefined;
         }
+
+        // Extraire le répertoire de base de l'URL pour que GLTFLoader puisse charger les ressources relatives
+        const basePath = url.substring(0, url.lastIndexOf('/') + 1);
+        this.loader.setPath(basePath);
 
         this.loader.load(
             url,
