@@ -13,3 +13,6 @@ dist/
 Thumbs.db
 
 src/assets/my_model/
+public/models/*.gltf
+public/models/*.glb
+public/models/*.bin
