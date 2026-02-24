@@ -1,7 +1,7 @@
 import { Viewer, type ModelInfo } from './viewer';
 
 
-const modelModules = import.meta.glob<{ default: string }>('./assets/models/*.{glb,gltf}', { eager: true, query: '?url' });
+const modelModules = import.meta.glob<{ default: string }>('/public/models/*.{glb,gltf}', { eager: true, query: '?url' });
 
 interface ModelEntry {
     name: string;
