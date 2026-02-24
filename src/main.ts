@@ -1,13 +1,11 @@
 import { Viewer, type ModelInfo } from './viewer';
 
-// ── Auto-discovery via Vite glob ──────────────────────────────────────────────
-// Vite résout tous les fichiers .glb et .gltf dans /public/models au build time.
-// Pas besoin de modifier ce fichier quand vous ajoutez un nouveau modèle !
-const modelModules = import.meta.glob('/public/models/*.{glb,gltf}', { eager: false, query: '?url' });
+
+const modelModules = import.meta.glob('/assets/*.{glb,gltf}', { eager: false, query: '?url' });
 
 interface ModelEntry {
-    name: string;   // nom affiché (dérivé du nom de fichier)
-    file: string;   // nom du fichier (ex: building_A.glb)
+    name: string;
+    file: string;
 }
 
 function fileToName(file: string): string {

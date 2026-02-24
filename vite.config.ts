@@ -1,25 +1,17 @@
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react-swc";
-import path from "path";
+import {defineConfig} from "vite";
 
-export default defineConfig(() => ({
-  base: "/Model-Viewer/",
+const REPO_NAME = 'Model-Viewer';
+
+export default defineConfig(({ command }) => ({
+  base: command === 'serve' ? '/' : `/${REPO_NAME}/`,
+
+  publicDir: 'public',
 
   server: {
-    host: "::",
-    port: 8080,
-    hmr: {
-      overlay: false,
-    },
+    open: true,
   },
 
-  plugins: [
-    react(),
-  ].filter(Boolean),
-
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
-    },
+  build: {
+    target: 'esnext',
   },
 }));

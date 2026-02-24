@@ -12,17 +12,17 @@ export interface ModelInfo {
 
 export class Viewer {
     private scene = new THREE.Scene();
-    private camera: THREE.PerspectiveCamera;
+    private readonly camera: THREE.PerspectiveCamera;
     private renderer: THREE.WebGLRenderer;
     private controls: OrbitControls;
     private loader = new GLTFLoader();
 
     private current?: THREE.Object3D;
-    private grid: THREE.GridHelper;
+    private readonly grid: THREE.GridHelper;
     private wireframeEnabled = false;
     private lightBg = false;
 
-    private container: HTMLElement;
+    private readonly container: HTMLElement;
 
     constructor(container: HTMLElement) {
         this.container = container;
@@ -94,11 +94,10 @@ export class Viewer {
         }
 
         this.loader.load(
-            `/models/${path}`,
+            `models/${path}`,
             (gltf: GLTF) => {
                 const model = gltf.scene;
 
-                // Center + scale
                 const box = new THREE.Box3().setFromObject(model);
                 const center = box.getCenter(new THREE.Vector3());
                 const size = box.getSize(new THREE.Vector3());
